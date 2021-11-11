@@ -200,8 +200,16 @@ bool isSoundFinished( void ) {
 
 // Future implementation: increase volume
 void upVolume( void ) {
+
+    if(volume < 32){
+        volume = volume + 1;
+    }
 }
 
 // Future implementation: decrease volume
 void downVolume( void ) {
+
+    if (volume > 0){
+        volume = volume - 1;
+    }
 }

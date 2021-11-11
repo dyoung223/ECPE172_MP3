@@ -1,3 +1,6 @@
+
+///// TEST //////
+
 /*
  * lab08.c
  *
@@ -6,6 +9,7 @@
  *  Modified on: May 29, 2020
  *      Author: khughes
  */
+
 
 #include <stdint.h>
 #include <stdbool.h>

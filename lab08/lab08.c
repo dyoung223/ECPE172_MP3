@@ -59,6 +59,44 @@ void playSong( uint8_t song  ) {
   enableTimer2A( false );
 }
 
+// add displayLCD to show additional status information (basic function #6)
+void displayLCD( uint8_t song ){
+  FIL fp;
+  getID3Tags( &fp , &tags );
+  uint8_t str;
+  uint8_t volume = 32;
+  
+  clearLCD();
+  positionLCD(0,0);
+  stringLCD(tags.title);
+  positionLCD(1,0);
+  stringLCD(tags.artist);
+  positionLCD(2,0);
+  stringLCD(tags.album);
+  
+  // display pause state of MP3
+  positionLCD(3,0);
+  if (isPaused()) {
+      str = "PAUSED";
+  }
+  else {
+      str = "PLAYING";
+  }
+  stringLCD("Play/Pause: ", str);
+  
+  // display volume level of MP3
+  positionLCD(4,0);
+  stringLCD("Volume: ", getVolume());
+  
+  // display current song number
+  position(5,0);
+  stringLCD("Song Number: ", song);
+}
+
+void displayElasedTime(  ){
+    
+}
+
 main() {
   // Initialize clock, SSIs, and Timer
   initOsc();
@@ -81,5 +119,6 @@ main() {
 
     // Send the file to the MP3 decoder
     playSong( song );
+    displayLCD( song );
   }
 }

@@ -37,10 +37,27 @@ enum keycmds_t {
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
-   {'1','2','3','A'},
-   {'4','5','6','B'},
-   {'7','8','9','C'},
-   {'*','0','#','D'},
+
+#ifdef KEYPAD_ALPHA
+                              {'D', 'C', 'B', 'A'},
+                              {'E', '9', '8', '7'},
+                              {'F', '8', '5', '4'},
+                              {'0', '7', '2', '1'},
+#endif
+#ifdef KEYPAD_PHONE
+                              {'1', '2', '3', 'A'},
+                              {'4', '5', '6', 'B'},
+                              {'7', '8', '9', 'C'},
+                              {'E', '0', 'F', 'D'},
+
+#endif
+#ifdef KEYPAD_ABT
+                              {'0', '1', '2', '3'},
+                              {'4', '5', '6', '7'},
+                              {'8', '9', 'E', 'D'},
+                              {'C', 'B', 'F', 'A'},
+#endif
+
 };
 
 // Your keypad pin assignments from Lab 4.

@@ -31,19 +31,27 @@ enum keycmds_t {
   SHUFFLE       = 'B',
   VOLUME_UP     = 'C',
   VOLUME_DOWN   = 'D',
-  SKIP_BACKWARD = 'E',
-  SKIP_FORWARD  = 'F',
+  SKIP_BACKWARD = 'E', //#
+  SKIP_FORWARD  = 'F', //0
 };
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
+   {'1','2','3','A'},
+   {'4','5','6','B'},
+   {'7','8','9','C'},
+   {'*','0','#','D'},
 };
 
 // Your keypad pin assignments from Lab 4.
 const struct portinfo rowdef = {
+    {GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7},
+    GPIO_PORTC
 };
 
 const struct portinfo columndef = {
+   {GPIO_PIN_3, GPIO_PIN_2, GPIO_PIN_1, GPIO_PIN_0},
+   GPIO_PORTH
 };
 
 // Return key value upon initial key press.  Since keys are
@@ -90,9 +98,9 @@ void UIHandler( void ) {
     case VOLUME_DOWN:   // 'D'
       downVolume();
       break;
-    case SKIP_BACKWARD: // 'E'
+    case SKIP_BACKWARD: // 'E' maybe #
       break;
-    case SKIP_FORWARD:  // 'F'
+    case SKIP_FORWARD:  // 'F' maybe 0
       setDone();
       break;
     default:            // Numeric keys

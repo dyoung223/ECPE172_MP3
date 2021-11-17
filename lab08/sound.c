@@ -86,6 +86,7 @@ void writeDACs( void ) {
       // Send one sample to each DAC
       txDataSSI1( 0, (*lOutPtr++ * (uint32_t)volume) / 32 );
       txDataSSI1( 1, (*rOutPtr++ * (uint32_t)volume) / 32 );
+
       dataLength -= 1;
 
       // check if at end of buffer and reset pointer
@@ -212,4 +213,8 @@ void downVolume( void ) {
     if (volume > 0){
         volume = volume - 1;
     }
+}
+
+uint8_t getVolume( void ){
+    return volume;
 }

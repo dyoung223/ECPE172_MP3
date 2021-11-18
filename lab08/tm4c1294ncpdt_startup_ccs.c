@@ -57,6 +57,7 @@ extern uint32_t __STACK_TOP;
 //*****************************************************************************
 // To be added by user
 extern void writeDACs(void);
+//extern void UIHandler(void);
 //*****************************************************************************
 //
 // The vector table.  Note that the proper constructs must be placed on this to
@@ -149,7 +150,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // I2C3 Master and Slave
     IntDefaultHandler,                      // Timer 4 subtimer A
     IntDefaultHandler,                      // Timer 4 subtimer B
-    IntDefaultHandler, // UIHandler        ,                      // Timer 5 subtimer A
+    UIHandler        ,                      // Timer 5 subtimer A
     IntDefaultHandler,                      // Timer 5 subtimer B
     IntDefaultHandler,                      // FPU
     0,                                      // Reserved
@@ -200,7 +201,7 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
 };
 
-extern void UIHandler( void );
+//extern void UIHandler( void );
 //*****************************************************************************
 //
 // This is the code that gets called when the processor first starts execution

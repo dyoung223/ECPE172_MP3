@@ -20,6 +20,7 @@
 #include "lcd.h"
 #include "ssi1_DAC.h"
 #include "timer2A.h"
+#include "timer5A.h"
 
 // FatFs
 #include "ff.h"
@@ -36,6 +37,8 @@
 // ID3 tags
 struct id3tags tags;
 
+
+
 // Decode and play an MP3 file.
 void playSong( uint8_t song  ) {
   FIL fp;
@@ -45,6 +48,38 @@ void playSong( uint8_t song  ) {
 
   // Process ID3 header (if any).
   getID3Tags( &fp , &tags );
+
+
+  // display song contents
+  clearLCD();
+  positionLCD(0,0);
+  stringLCD(tags.title);
+  positionLCD(1,0);
+  stringLCD(tags.artist);
+  positionLCD(2,0);
+  stringLCD(tags.album);
+
+  // add displayLCD to show additional status information (basic function #6)
+  // display additional contents
+  //uint8_t * str;
+  //uint8_t * vol = "16";
+
+  // display pause state of MP3
+  /*positionLCD(4,0);
+  if (isPaused()) {
+      str = "PAUSED";
+  }
+  else {
+      str = "PLAYING";
+  }
+  stringLCD(str);
+*/
+
+  //positionLCD(5,0);
+  //stringLCD(vol);
+
+  //positionLCD(6,0);
+  //stringLCD(&song);
 
   // Prepare for sound output.
   initSound();
@@ -59,39 +94,7 @@ void playSong( uint8_t song  ) {
   enableTimer2A( false );
 }
 
-// add displayLCD to show additional status information (basic function #6)
-void displayLCD( uint8_t song ){
-  FIL fp;
-  getID3Tags( &fp , &tags );
-  uint8_t str;
-  uint8_t volume = 32;
-  
-  clearLCD();
-  positionLCD(0,0);
-  stringLCD(tags.title);
-  positionLCD(1,0);
-  stringLCD(tags.artist);
-  positionLCD(2,0);
-  stringLCD(tags.album);
-  
-  // display pause state of MP3
-  positionLCD(3,0);
-  if (isPaused()) {
-      str = "PAUSED";
-  }
-  else {
-      str = "PLAYING";
-  }
-  stringLCD("Play/Pause: ", str);
-  
-  // display volume level of MP3
-  positionLCD(4,0);
-  stringLCD("Volume: ", getVolume());
-  
-  // display current song number
-  position(5,0);
-  stringLCD("Song Number: ", song);
-}
+
 
 void displayElasedTime(  ){
     
@@ -101,15 +104,18 @@ main() {
   // Initialize clock, SSIs, and Timer
   initOsc();
   initSSI3();
-  initLCD( true );
+  initLCD( false );
   initSSI1();
   initTimer2A();
+  //initTimer5A();
+  initUI();
 
   // Initialize structure.
   FATFS fs; f_mount( &fs, "", 0 );
 
   // Find out how many MP3 files are on the card.
   uint8_t numSongs = countMP3();
+  numSongs = countMP3();
   setNumSongs( numSongs );
 
   // Obligatory endless loop.
@@ -119,6 +125,5 @@ main() {
 
     // Send the file to the MP3 decoder
     playSong( song );
-    displayLCD( song );
   }
 }

@@ -7,221 +7,310 @@
 
         .thumb                          ; generate Thumb-2 code
 
-		.global initRCGCGPIO
-        .global initKeypad
-        .global getKey
-        .global setrow
-        .global cport, rport, lastrow
-
+		.global	initRCGCGPIO
+		;.global setrow
+		.global cport, rport, lastrow
         .text                           ; switch to code (ROM) section
 
 ;; Place declarations and references for variables here.
 
+		;.global	cport, rport, lastrow
+
+;;		since the rcgcgpio register is 32 bits, declare a uint32_t
+;;      (4 byte) variable with word alighment (4)
+
+
+
         .align  4                       ; force word alignment
 ;; Place definitions for peripheral registers here (base
 ;; addresses, register offsets, and field constants).  Follow the
-;; example for the SYSCTL RCGCGPIO register from Lab 3.
-
+;; example for the SYSCTL RCGCCPIO register from Lab 3.
+addr_rport: 			.word 	rport
+addr_cport:				.word 	cport
+addr_lastrow: 			.word	lastrow
 SYSCTL:                 .word   0x400fe000
 SYSCTL_RCGCGPIO         .equ    0x608
-SYSCTL_RCGCGPIO_PORTA   .equ    (1<<0)
-SYSCTL_RCGCGPIO_PORTH   .equ    (1<<7)
-SYSCTL_RCGCGPIO_PORTC 	.equ 	(1<<2)
-GPIO_PORTA: 			.word 	0x40058000
-GPIO_PORTH:				.word	0x4005f000
-GPIO_PORTC:				.word	0x4005a000
-GPIO_DIR				.equ	(0x400)
-GPIO_PUR				.equ	(0x510)
-GPIO_DEN				.equ	(0x51c)
-GPIO_LOCK				.equ	(0x520)
-GPIO_CR					.equ	(0x524)
-GPIO_ODR				.equ	(0x50c)
-GPIO_AFSEL				.equ	(0x420)
-GPIO_PIN_0				.equ	(1<<0)
-GPIO_PIN_1				.equ	(1<<1)
-GPIO_PIN_2				.equ	(1<<2)
-GPIO_PIN_3				.equ	(1<<3)
-GPIO_PIN_4				.equ	(1<<4)
-GPIO_PIN_5				.equ	(1<<5)
-GPIO_PIN_6				.equ	(1<<6)
-GPIO_PIN_7				.equ	(1<<7)
-PIN0					.equ	0x0
-PIN1					.equ 	0x1
-PIN2					.equ	0x2
-PIN3					.equ	0x3
-BASE					.equ	0x4
-RPORT_ADDR:				.word 	rport
-CPORT_ADDR:				.word	cport
-LASTROW_ADDR:			.word	lastrow
-
-;; static void initRCGCGPIO( volatile uint32_t * base);
-
-		.align 4
-
-initRCGCGPIO:
-		.asmfunc							; initializes the RCGCGPIO for the port passed into the function
-
-		push 	{LR, R4-R12}
-
-		mov 	R4, R0						; move base addr to R4
-		ldr 	R0, SYSCTL					; load base address of sysctl into R0
-		ldr		R1, [R0, #SYSCTL_RCGCGPIO]	; load all sysctl stuff
-		ldr 	R2, GPIO_PORTA				; load port A offset into R2
-		sub		R4, R2						; subtract PortA base addr from passed base addr, store in R4
-		lsr		R4, #12						; logical shift right 12 bits
-		mov 	R5, #1						; load 1 into R5
-		lsl		R5, R4						; logical shift left by the subtracted value in R4
-		orr		R1, R5						; bitwise or RCGCGPIO with the final value to enable port clock
-		str		R1, [R0, #SYSCTL_RCGCGPIO]	; store back into sysctl
-
-		pop		{PC, R4-R12}
-
-		.endasmfunc
-
-
-		.align 	4
-
-;;setrow:
-;;		.asmfunc
-
-;;		push 	{LR, R4-R12}
-
-
-
-;;		pop		{PC, R4-R12}
-
-;;		.endasmfunc
-
+SYSCTL_RCGCGPIO_PORTL   .equ    (1<<10)
+GPIO_PORTL:             .word   0x40062000
+GPIO_DIR				.equ	0x400
+GPIO_PUR				.equ	0x510
+GPIO_DEN				.equ	0x51C
+GPIO_ODR				.equ	0x50C
+GPIO_AFSEL				.equ 	0x420
+GPIO_PIN_0              .equ    (1 << 0)
+GPIO_PIN_1              .equ    (1 << 1)
+GPIO_PIN_2				.equ 	(1 << 2)
+GPIO_PIN_3				.equ	(1 << 3)
 
 ;; void initKeypad( const struct portinfo *col, const struct portinfo *row );
-
+		.global initKeypad
         .align  4                       ; force word alignment
+initKeypad:   .asmfunc
+	push    {LR,R5-R12}             ; save return address and other registers
 
-initKeypad:
-		.asmfunc
-		push	{LR, R4-R12}
+	;;// temporary varaiable representing row or column port pins
+	;;  uint8_t pins;
 
-		mov 	R4, R0						; moving arguments *col R4
-		mov		R5, R1						; *row to R5
-
-		ldr		R6, CPORT_ADDR				; move address of cport into R6 register
-		ldr		R7, RPORT_ADDR				; move address of rport into R7 register
-
-		str 	R0, [R6]					; put contents of *col into CPORT at the address
-		str		R1, [R7]					; put contents of *row into RPORT at the address
-
-		ldr 	R0, [R4, #BASE]				; loading address of base of *col
-		bl 		initRCGCGPIO				; turns on RCGCGPIO for PORTH
-
-		ldr		R0, [R5, #BASE]				; loading address of base of *row
-		bl		initRCGCGPIO				; turns on RCGCGPIO for PORTC
-
-;; for row
-
-		ldrb	R0, [R5, #PIN0]				; load each pin into R0-R3 to be or'ed
-		ldrb	R1, [R5, #PIN1]
-		ldrb	R2, [R5, #PIN2]
-		ldrb	R3,	[R5, #PIN3]
-
-		orr		R0, R1						; orr each of the pins to create the bitmask
-		orr 	R0, R2
-		orr		R0, R3
-
-		ldr		R1, [R5, #BASE]				; reload base address of col back into R1
-		ldr		R2, [R1, #GPIO_DIR]			; get value stored at GPIO_DIR and load into R2
-		orr		R3, R0, R2					; orr value in GPIO_DIR and bitmask (R0) and store in R3
-		str 	R3, [R1, #GPIO_DIR]			; store back out to GPIO_DIR
-
-		ldr		R2, [R1, #GPIO_PUR]			; do same process as above with PUR register
-		bic		R3, R0, R2
-		str 	R3, [R1, #GPIO_PUR]
-
-		ldr		R2, [R1, #GPIO_ODR]			; do same process as above with ODR register
-		orr		R3, R0, R2
-		str		R3, [R1, #GPIO_ODR]
-
-		ldr		R2, [R1, #GPIO_AFSEL]		; do same process as above with AFSEL register
-		bic		R3, R0, R2
-		str		R3, [R1, #GPIO_AFSEL]
-
-		ldr		R2, [R1, #GPIO_DEN]			; do same process as above with DEN register
-		orr		R3, R0, R2
-		str		R3, [R1, #GPIO_DEN]
-
-;; for col
-
-		ldrb	R0, [R4, #PIN0]				; load each pin into R0-R3 to be or
-		ldrb	R1, [R4, #PIN1]				; remains PIN0-PIN3 because of address offset
-		ldrb	R2, [R4, #PIN2]
-		ldrb	R3,	[R4, #PIN3]
-
-		orr 	R0, R1
-		orr 	R0, R2
-		orr 	R0, R3
-
-		ldr		R1, [R4, #BASE]
-		ldr		R2, [R1, #GPIO_DIR]			; get value stored at GPIO_DIR and load into R2
-		bic		R3, R0, R2					; orr value in GPIO_DIR and bitmask (R0) and store in R3
-		str 	R3, [R1, #GPIO_DIR]			; store back out to GPIO_DIR
-
-		ldr		R2, [R1, #GPIO_PUR]			; do same process as above with PUR register
-		orr		R3, R0, R2
-		str 	R3, [R1, #GPIO_PUR]
-
-		ldr		R2, [R1, #GPIO_ODR]			; do same process as above with ODR register
-		bic		R3, R0, R2
-		str		R3, [R1, #GPIO_ODR]
-
-		ldr		R2, [R1, #GPIO_AFSEL]		; do same process as above with AFSEL register
-		bic		R3, R0, R2
-		str		R3, [R1, #GPIO_AFSEL]
-
-		ldr		R2, [R1, #GPIO_DEN]			; do same process as above with DEN register
-		orr		R3, R0, R2
-		str		R3, [R1, #GPIO_DEN]
+	;;  // Save base addresses for row and column ports for getKey()
+	;;  rport = r;
+	;;  cport = c;
+	ldr			R5, addr_cport		; load address of cport
+	ldr			R6, addr_rport		; load address of rport
+	str			R0, [R5]		; move the input parameters into variables, c ; R5
+	str			R1, [R6]		; move the input parameters into variables, r ; R6
 
 
+	;;  // enable port clocks
+	;;  initRCGCGPIO( cport->base );
+	;;  initRCGCGPIO( rport->base );
+	ldr		R7, [R5]		;R7 is cport
+	ldr		R0, [R7, #4] 	;cport four addresses or 4 byte aligns to get to the base address
+	bl 		initRCGCGPIO
 
-		mov		R0, #0
-		bl 		setrow
+	ldr 	R8, [R6]		;R8 is rport
+	ldr		R0, [R8, #4] 	;rport four addresses or 4 byte aligns to get to the base address
+	bl 		initRCGCGPIO
 
-		pop 	{PC, R4-R12}
 
+	;;  // enable row pins as outputs
+	;;  pins = rport->pins[0] | rport->pins[1] | rport->pins[2] | rport->pins[3];
+
+	ldrb	R10, [R8, #0]				;pull out pins[0:3] from rport
+	orr 	R9, R10, R10					;sets R9 to pin[0]
+	ldrb 	R10, [R8, #1]
+	orr		R9, R9, R10						;sets R9 to pin[0]|pin[1]
+	ldrb	R10, [R8, #2]
+	orr		R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]
+	ldrb	R10, [R8, #3]
+	orr 	R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]|pin[3]
+
+
+	;;  // set direction as output
+	ldr		R11, [R8, #4]
+	;;  rport->base[GPIO_DIR] |= pins;
+	ldr 	R10, [R11, #GPIO_DIR]			;load the current GPIO_DIR data
+	orr 	R10, R9							;set pins
+	str		R10, [R11, #GPIO_DIR]			;return data back into the register
+
+	;;  // turn off pull-ups
+	;;  rport->base[GPIO_PUR] &= ~pins;
+	ldr 	R10, [R11, #GPIO_PUR]			;load current GPIO_PUR data
+	bic		R10, R9
+	str		R10, [R11, #GPIO_PUR]
+
+
+	;;  // ensure open-drain
+	;;  rport->base[GPIO_ODR] |= pins;
+	ldr 	R10, [R11, #GPIO_ODR]			;load the current GPIO_ODR data
+	orr 	R10, R9							;set pins
+	str		R10, [R11, #GPIO_ODR]			;return data back into the register
+
+	;;  // turn off alternate functions
+	;;  rport->base[GPIO_AFSEL] &= ~pins;
+	ldr 	R10, [R11, #GPIO_PUR]			;load curretn GPIO_AFSEL data
+	bic		R10, R9
+	str		R10, [R11, #GPIO_PUR]
+
+
+	;;  // enable
+	;;  rport->base[GPIO_DEN] |= pins;
+	ldr 	R10, [R11, #GPIO_DEN]			;load the current GPIO_DEN data
+	orr 	R10, R9							;set pins
+	str		R10, [R11, #GPIO_DEN]			;return data back into the register
+
+
+	;;  // enable col pins as inputs
+	;;  pins = cport->pins[0] | cport->pins[1] | cport->pins[2] | cport->pins[3];
+	ldrb	R10, [R7, #0]					;pull out pins[0:3] from rport
+	orr 	R9, R10, R10					;sets R9 to pin[0], should clear previous, if not use bfc (bit field clear)
+	ldrb 	R10, [R7, #1]
+	orr		R9, R9, R10						;sets R9 to pin[0]|pin[1]
+	ldrb	R10, [R7, #2]
+	orr		R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]
+	ldrb	R10, [R7, #3]
+	orr 	R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]|pin[3]
+
+	;;  // set direction as input
+	ldr		R11, [R7, #4] 					;store cport->base
+	;;  cport->base[GPIO_DIR] &= ~pins;
+	ldr		R10, [R11, #GPIO_DIR]
+	bic		R10, R9
+	str		R10, [R11, #GPIO_DIR]
+
+	;;  // enable pull-ups
+	;;  cport->base[GPIO_PUR] |= pins;
+	ldr		R10, [R11, #GPIO_PUR]
+	orr		R10, R9
+	str		R10, [R11, #GPIO_PUR]
+
+	;;  // turn off open-drain
+	;;  cport->base[GPIO_ODR] &= ~pins;
+	ldr		R10, [R11, #GPIO_ODR]
+	bic		R10, R9
+	str		R10, [R11, #GPIO_ODR]
+
+	;;  // turn off alternate functions
+	;;  cport->base[GPIO_AFSEL] &= ~pins;
+	ldr		R10, [R11, #GPIO_AFSEL]
+	bic		R10, R9
+	str		R10, [R11, #GPIO_AFSEL]
+
+	;;  // enable
+	;;  cport->base[GPIO_DEN] |= pins;
+	ldr		R10, [R11, #GPIO_DEN]
+	orr		R10, R9
+	str		R10, [R11, #GPIO_DEN]
+
+	;;  // set the initial row to scan
+	mov 	R0, #0
+	;;  setrow( 0 );
+	bl		setrow
+
+	pop     {PC,R5-R12}             ; restore all register and return
         .endasmfunc
+
+
 
 ;; bool getKey( uint8_t *col, uint8_t *row );
+		.global getKey
+        .align  4                       ; force word alignment
 
-        .align  4                       	; force word alignment
+
+       ;;bool getKey( uint8_t *col, uint8_t *row )
 getKey: .asmfunc
+	push    {LR,R5-R12}             ; save return address and other registers
+	;;	// Get pin numbers for columns
 
-		push 	{LR, R4-R12}
+	ldr		R5, addr_cport		; load address of cport
 
-		mov		R4, R0						; Move R0 (col) into R4
-		mov 	R5, R1						; Move R1 (row) into R5
+	ldr		R7, [R5]		; cport
 
-		ldr		R6, CPORT_ADDR				; move address of cport into R6 register
-		ldr		R7, RPORT_ADDR				; move address of rport into R7 register
+	;;  uint8_t pins = cport->pins[0] | cport->pins[1] | cport->pins[2] | cport->pins[3];
+	ldrb	R10, [R7, #0]				;pull out pins[0:3] from rport
+	orr 	R9, R10, R10				;sets R9 to pin[0], should clear previous, if not use bfc (bit field clear)
+	ldrb 	R10, [R7, #1]
+	orr		R9, R9, R10					;sets R9 to pin[0]|pin[1]
+	ldrb	R10, [R7, #2]
+	orr		R9, R10, R9					;sets R9 to pin[0]|pin[1]|pin[2]
+	ldrb	R10, [R7, #3]
+	orr 	R9, R10, R9					;sets R9 to pin[0]|pin[1]|pin[2]|pin[3]
 
-		str 	R0, [R6]					; put contents of *col into CPORT at the address
-		str		R1, [R7]					; put contents of *row into RPORT at the address
+	;;  // If all pins are high, change the row for the next time.
+	ldr		R11, [R7, #4] 	;cport->base  four addresses or 4 byte aligns to get to the base address
+	lsl		R6, R9, #2
+	ldr		R10, [R11, R6]		;cport->base[pins]
+	;;  if( cport->base[pins] == pins ) {
+	cmp 	R10, R9				;compare cport->base[pins] with pins
+	beq 	cportEqPins			;if equal
+	;;    setrow( lastrow + 1 );
+	;;    return false;
+	;;  }
 
-		ldrb	R0, [R4, #PIN0]				; load each pin of col into R0-R3 to be or'ed
-		ldrb	R1, [R4, #PIN1]
-		ldrb	R2, [R4, #PIN2]
-		ldrb	R3,	[R4, #PIN3]
+	;;  // Otherwise one column is low....
 
-		orr		R0, R1						; pins all high
-		orr 	R0, R2
-		orr 	R0, R3
+	;;  // Return row number
+	;;  *row = lastrow;
+	ldr 	R11, addr_lastrow		;value of lastrow
+	ldrb	R11, [R11]				;value at last row
+	strb	R11, [R1]				;store data at lastrow into the memory location of row
 
-		ldr 	R1, [R4, #BASE]
+	mov		R8, #0 	;i = 0
+	;;  // Now figure out which column it is
+	;;  // Only check three columns; if none of them are low, it has to be the
+	;;  // fourth.
+	;;  for( uint8_t i = 0; i < 3; ++i ) {
+	b 		forloop
+forloop:
+	ldr		R12, [R7, #4] 		;cport->base  four addresses or 4 byte aligns to get to the base address
+	ldrb 	R6, [R7, R8]		;cport->pins[i]
+	lsl		R6, R6, #2
+	ldr		R10, [R12, R6]		;cport->base[cport->[pins[i]]]
+	cmp		R10, #0				;if cport->base[cport->[pins[i]] == 0
+	;;    if( cport->base[cport->pins[i]] == 0 ) {
+	beq 	returnCol
+	;;      *col = i;
+	;;      return true;
+	;;    }
+	;;  }
+	add		R8, #1				;i++
+	cmp 	R8, #3 				;if i >= 3 exit loop
+	bhs 	EndFor				;go to end of for loop else return back to top of for loop
+	b 		forloop
+	;;	if i >= 3
+	;;  *col = 3;
+	;;  return true;
+returnCol:
+	;;      *col = i;
+	strb 	R8, [R0]			;store i in col
+	mov 	R0, #1				;return true
 
-		pop		{PC, R4-R12}
-        .endasmfunc
+	b 		EndCond
+
+EndFor:
+	;;  *col = 3;
+	;;  return true;
+	mov 	R4, #3
+	strb	R4, [R0]
+	mov		R0, #1
+
+	b 		EndCond
+
+
+cportEqPins:
+	;;setrow( lastrow + 1 );
+	ldr 	R11, addr_lastrow
+	ldrb	R6, [R11]
+	add 	R6, R6, #1
+	mov 	R0, R6
+	bl 		setrow
+	;;    return false;
+	mov		R0, #0
+	b 		EndCond
+EndCond:
+
+	pop     {PC,R5-R12}             ; restore all register and return
+    .endasmfunc
+
+
+
+		.global setrow
+        .align  4                       ; force word alignment
+setrow: .asmfunc
+	push    {LR,R5-R12}             ; save return address and other registers
+	ldr		R6, addr_rport			; load address of rport
+	ldr 	R8, [R6]				;R8 is rport
+	ldrb	R10, [R8, #0]				;pull out pins[0:3] from rport
+	orr 	R9, R10, R10					;sets R9 to pin[0]
+	ldrb 	R10, [R8, #1]
+	orr		R9, R9, R10						;sets R9 to pin[0]|pin[1]
+	ldrb	R10, [R8, #2]
+	orr		R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]
+	ldrb	R10, [R8, #3]
+	orr 	R9, R10, R9						;sets R9 to pin[0]|pin[1]|pin[2]|pin[3]
+
+	and 	R7, R0, #3
+	ldr		R11, addr_lastrow
+	str		R7, [R11]
+
+	ldr		R11, [R8, #4]			;rport->base
+	ldr		R10, [R8, R7]			;rport->pins[lastrow]
+	eor		R7, R9, R10				;pins xor rport->pins[lastrow]
+	str		R7, [R11, R9, lsl #2]
+
+
+	pop     {PC,R5-R12}             ; restore all register and return
+    .endasmfunc
+
 
         .data                           ; switch to data (RAM) section
         .align  4                       ; force word alignment
+;cport:					.word	0x00000000
+;rport:					.word 	0x00000000
+;lastrow:				.byte	0x00
+
+		.align 4
 
 ;; Place any variables stored in RAM here
 
         .end
+s

@@ -9,5 +9,6 @@ bool isSoundFinished( void );
 
 void upVolume( void );
 void downVolume( void );
+uint8_t getVolume( void );
 
 #endif // _SOUND_H

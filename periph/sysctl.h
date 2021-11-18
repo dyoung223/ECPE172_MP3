@@ -30,6 +30,7 @@ enum {
   SYSCTL_RCGCTIMER =      (0x604 >> 2),
 #define   SYSCTL_RCGCTIMER_TIMER2 (1 << 2)
 #define   SYSCTL_RCGCTIMER_TIMER3A (1 << 3)
+#define   SYSCTL_RCGCTIMER_TIMER5 (1 << 5)
 
   SYSCTL_RCGCSSI =        (0x61c >> 2),
 #define   SYSCTL_RCGCSSI_SSI3     (1 << 3)

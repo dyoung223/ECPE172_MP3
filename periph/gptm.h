@@ -16,6 +16,7 @@
 // Peripheral base addresses.
 #define GPTM_TIMER2             ((volatile uint32_t *)0x40032000)
 #define GPTM_TIMER3             ((volatile uint32_t *)0x40033000)
+#define GPTM_TIMER5             ((volatile uint32_t *)0x40035000)
 
 // Peripheral register offsets and special fields
 enum {

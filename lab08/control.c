@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "control.h"
 
@@ -24,6 +25,7 @@ static bool shuffle = false;
 
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
+  song = rand() % getNumSongs(); //Destiny Shuffle mode
   return song;
 }
 

@@ -115,7 +115,8 @@ void UIHandler( void ) {
     case VOLUME_DOWN:   // 'D'
       downVolume();
       break;
-    case SKIP_BACKWARD: // 'E' maybe #
+    case SKIP_BACKWARD: // '*' maybe #
+      playPreviousSong();
       break;
     case SKIP_FORWARD:  // 'F' maybe 0
       setDone();

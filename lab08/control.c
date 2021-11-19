@@ -88,9 +88,9 @@ uint8_t playPreviousSong( void ){
 
 
     if (song == 0 ){
-        song = numSongs - 1;
+        song = numSongs - 2;
     }else{
-        song = ( song - 1 ) % numSongs;
+        song = ( song - 2 ) % numSongs;
     }
 
 

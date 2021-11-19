@@ -31,8 +31,8 @@ enum keycmds_t {
   SHUFFLE       = 'B',
   VOLUME_UP     = 'C',
   VOLUME_DOWN   = 'D',
-  SKIP_BACKWARD = '*', //#
-  SKIP_FORWARD  = '#', //0
+  SKIP_BACKWARD = '*',
+  SKIP_FORWARD  = '#',
 };
 
 // Your keypad key assignments from Lab 4.
@@ -115,9 +115,9 @@ void UIHandler( void ) {
     case VOLUME_DOWN:   // 'D'
       downVolume();
       break;
-    case SKIP_BACKWARD: // 'E' maybe #
+    case SKIP_BACKWARD: // 'E' maybe *
       break;
-    case SKIP_FORWARD:  // 'F' maybe 0
+    case SKIP_FORWARD:  // 'F' maybe #
       setDone();
       break;
     default:            // Numeric keys

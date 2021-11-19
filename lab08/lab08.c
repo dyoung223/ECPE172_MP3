@@ -22,6 +22,7 @@
 #include "ssi1_DAC.h"
 #include "timer2A.h"
 #include "timer5A.h"
+#include "UI.h"
 
 // FatFs
 #include "ff.h"
@@ -62,6 +63,22 @@ void playSong( uint8_t song  ) {
 
   // add displayLCD to show additional status information (basic function #6)
   // display additional contents
+  uint8_t * playStr = "Playing |>"; // default is playing
+  uint8_t * shufStr = "Shuff:OFF"; // default is OFF
+  uint8_t * volStr = "16"; // default is 16
+  uint8_t * songStr = "01"; // default is 1
+
+  positionLCD(4,0);
+  stringLCD(playStr);
+  positionLCD(4,11);
+  stringLCD(shufStr);
+  positionLCD(5,0);
+  stringLCD("Volume:");
+  stringLCD(volStr);
+
+  positionLCD(5,11);
+  stringLCD("Song:");
+  stringLCD(songStr);
 
   // Prepare for sound output.
   initSound();

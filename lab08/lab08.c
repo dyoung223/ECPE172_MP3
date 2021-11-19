@@ -21,6 +21,7 @@
 #include "lcd.h"
 #include "ssi1_DAC.h"
 #include "timer2A.h"
+#include "timer5A.h"
 
 // FatFs
 #include "ff.h"
@@ -88,12 +89,15 @@ main() {
   initLCD( false );
   initSSI1();
   initTimer2A();
+  //initTimer5A();
+  initUI();
 
   // Initialize structure.
   FATFS fs; f_mount( &fs, "", 0 );
 
   // Find out how many MP3 files are on the card.
   uint8_t numSongs = countMP3();
+  numSongs = countMP3();
   setNumSongs( numSongs );
 
   // Obligatory endless loop.

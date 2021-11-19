@@ -31,8 +31,8 @@ enum keycmds_t {
   SHUFFLE       = 'B',
   VOLUME_UP     = 'C',
   VOLUME_DOWN   = 'D',
-  SKIP_BACKWARD = 'E', //#
-  SKIP_FORWARD  = 'F', //0
+  SKIP_BACKWARD = '*', //#
+  SKIP_FORWARD  = '#', //0
 };
 
 // Your keypad key assignments from Lab 4.
@@ -48,7 +48,7 @@ static const uint8_t keymap[4][4] = {
                               {'1', '2', '3', 'A'},
                               {'4', '5', '6', 'B'},
                               {'7', '8', '9', 'C'},
-                              {'E', '0', 'F', 'D'},
+                              {'*', '0', '#', 'D'},
 
 #endif
 #ifdef KEYPAD_ABT
@@ -84,7 +84,7 @@ static uint16_t UIKey( void ) {
   switch( state ) {
   case NOT_PRESSED:
     if( getKey( &column, &row ) == true ) {
-      key = LOOKUP();
+      key = lookup(row, column, SIZE, (uint8_t *)ADDR);
       state = PRESSED;
       return (uint16_t)key;
     }
@@ -115,7 +115,8 @@ void UIHandler( void ) {
     case VOLUME_DOWN:   // 'D'
       downVolume();
       break;
-    case SKIP_BACKWARD: // 'E' maybe #
+    case SKIP_BACKWARD: // '*' maybe #
+      playPreviousSong();
       break;
     case SKIP_FORWARD:  // 'F' maybe 0
       setDone();

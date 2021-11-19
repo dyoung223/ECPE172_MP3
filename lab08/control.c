@@ -82,6 +82,23 @@ void setDone( void ) {
   done = true;
 }
 
+uint8_t playPreviousSong( void ){
+    //End Current Song
+    setDone();
+
+
+    if (song == 0 ){
+        song = numSongs - 2;
+    }else{
+        song = ( song - 2 ) % numSongs;
+    }
+
+
+    // Return song number.
+    return song;
+
+}
+
 // Indicates whether the MP3 player is paused.
 bool isPaused( void ) {
   return paused;

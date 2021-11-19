@@ -19,6 +19,7 @@
 #include "osc.h"
 #include "keypad.h"
 
+/*
 const struct portinfo columndef = {
   {GPIO_PIN_3, GPIO_PIN_2, GPIO_PIN_1, GPIO_PIN_0},
   GPIO_PORTH
@@ -28,12 +29,12 @@ const struct portinfo rowdef = {
   {GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7},
   GPIO_PORTC
 };
-
+*/
 // Local variables used by the procedures
 const struct portinfo *cport;
 const struct portinfo *rport;
 uint8_t lastrow;
-
+/*
 const uint8_t keymap[4][4] = {
 #ifdef KEYPAD_ALPHA
    {'1','2','3','A'},
@@ -54,13 +55,13 @@ const uint8_t keymap[4][4] = {
    {'C','D','E','F'},
 #endif
 };
-
+*/
 // Each peripheral base address is offset from the prior one by 0x1000.  Use 
 // the base address to calculate which bit in the RCGCCPIO register needs 
 // to be enabled.
 
 
-static void initRCGCGPIO( volatile uint32_t * base ) {
+void initRCGCGPIO( volatile uint32_t * base ) {
   SYSCTL[SYSCTL_RCGCGPIO] |= 1 << (((uint32_t)base - (uint32_t)GPIO_PORTA) >> 12);
 }
 

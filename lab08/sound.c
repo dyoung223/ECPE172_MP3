@@ -16,6 +16,7 @@
 // Peripherals
 #include "ssi1_DAC.h"
 #include "timer2A.h"
+#include "timer5a.h"
 
 #ifndef SYSCTL_RCGCGPIO_PORTA
 #define   SYSCTL_RCGCGPIO_PORTA (1<<0)  // Port A

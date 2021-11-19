@@ -61,40 +61,6 @@ void playSong( uint8_t song  ) {
 
   // add displayLCD to show additional status information (basic function #6)
   // display additional contents
-  uint8_t * playStr;
-  /*char *  volArr[32] = {"01", "02", "03", "04", "05", "06", "07", "08",
-                        "09", "10", "11", "12", "13", "14", "15", "16",
-                        "17", "18", "19", "20", "21", "22", "23", "24",
-                        "25", "26", "27", "28", "29", "30", "31", "32"};
-                        */
-  uint8_t volNum = getVolume();
-  uint8_t * volStr = "16";
-  uint8_t * songStr = "20";
-
-  // display pause state of MP3
-  positionLCD(4,0);
-  if (isPaused()) {
-      playStr = "PAUSED ||";
-  }
-  else {
-      playStr = "PLAYING |>";
-  }
-  stringLCD(playStr);
-
-  // display volume
-  positionLCD(5,0);
-  stringLCD("Volume:");
-  stringLCD(volStr);
-
-  // display current song number
-  positionLCD(5,11);
-  stringLCD("Song:");
-  stringLCD(songStr);
-
-  // display time elapsed
-  positionLCD(7,0);
-  stringLCD("Time Elapsed: ");
-  stringLCD("6");
 
   // Prepare for sound output.
   initSound();

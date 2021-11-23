@@ -2,7 +2,7 @@
 #define _UI_H
 
 // Place these definitions in your sysctl.h file, if missing:
-#define SYSCTL_RCGCTIMER_TIMER5 (1<<5)
+// #define SYSCTL_RCGCTIMER_TIMER5 (1<<5)
 // Place these definitions in your gptm.h and gptm.h file, if missing:
 #define GPTM_TIMER5 ((volatile uint32_t *)0x40035000)
 // Merge these definitions iyour ppb.h file:

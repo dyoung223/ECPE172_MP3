@@ -20,10 +20,12 @@
 #include "sysctl.h"
 #include "keypad.h"
 #include "lookup.h"
+#include "lcd.h"
 
 // Various hooks for MP3 player
 #include "control.h"
 #include "UI.h"
+#include "sound.h"
 
 // Definitions for function keys
 enum keycmds_t {
@@ -103,23 +105,35 @@ static uint16_t UIKey( void ) {
 // keypad and if a new key is detected, performs necessary actions.
 void UIHandler( void ) {
   uint16_t key = UIKey( ); 
+  uint8_t * playStr;
+  uint8_t * shufStr;
+
   if( key != UINT16_MAX ) {
     switch( (enum keycmds_t)key ) {
     case PLAY_PAUSE:    // 'A'
       setPaused( isPaused() == false );
+      // display pause state of MP3
+      positionLCD(4,0);
+      if (isPaused()) {
+          playStr = "PAUSED  ||";
+      }
+      else {
+          playStr = "PLAYING |>";
+      }
+      stringLCD(playStr);
       break;
     case SHUFFLE:       // 'B'
-        setShuffle( isShuffle() == false );
-        positionLCD(4,11);
-        stringLCD("Shuff:");
-        if (isShuffle()){
+      setShuffle( isShuffle() == false );
+      positionLCD(4,11);
+      stringLCD("Shuff:");
+      if (isShuffle()){
           shufStr = " ON";
-        }
-        else {
+      }
+      else {
           shufStr = "OFF";
-        }
-        stringLCD(shufStr);
-        break;
+      }
+      stringLCD(shufStr);
+      break;
     case VOLUME_UP:     // 'C'
       upVolume();
       break;

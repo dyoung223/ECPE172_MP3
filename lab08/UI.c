@@ -35,6 +35,8 @@ enum keycmds_t {
   SKIP_FORWARD  = '#', //0
 };
 
+bool secondMenuFlag = False;
+
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
 
@@ -107,8 +109,17 @@ void UIHandler( void ) {
       setPaused( isPaused() == false );
       break;
     case SHUFFLE:       // 'B'
-      setShuffle( isShuffle() == false );
-      break;
+        setShuffle( isShuffle() == false );
+        positionLCD(4,11);
+        stringLCD("Shuff:");
+        if (isShuffle()){
+          shufStr = " ON";
+        }
+        else {
+          shufStr = "OFF";
+        }
+        stringLCD(shufStr);
+        break;
     case VOLUME_UP:     // 'C'
       upVolume();
       break;
@@ -116,10 +127,34 @@ void UIHandler( void ) {
       downVolume();
       break;
     case SKIP_BACKWARD: // '*' maybe #
-      playPreviousSong();
+        if(secondMenuFlag == False){
+            secondMenuFlag = True;
+        }else{
+            secondMenuFlag = False;
+            playPreviousSong();
+        }
+      /* not how to do this
+        while(true){
+          key = UIKey( );
+          if(key == SKIP_BACKWARD){
+              playPreviousSong()
+              break;
+          }else if(key == SKIP_FORWARD){
+              setDone();
+              break;
+          }
+      }
+      */
+      //playPreviousSong();
       break;
-    case SKIP_FORWARD:  // 'F' maybe 0
-      setDone();
+    case SKIP_FORWARD:  // '#' maybe 0
+        if(secondMenuFlag == True){
+            secondMenuFag = False;
+            setDone();
+        }else{
+            enterQueueMode();
+        }
+      //setDone();
       break;
     default:            // Numeric keys
       break;
@@ -154,7 +189,7 @@ void initUI( void ) {
   PPB[PPB_EN2] |= PPB_EN2_TIMER5A;
 
   // Set priority level to 1 (lower priority than Timer2A).
-  PPB[PPB_PRI16] = ( PPB[PPB_PRI16] & PPB_PRI_INTB_M ) | ( 1 << PPB_PRI_INTB_S );
+  PPB[PPB_PRI16] = ( PPB[PPB_PRI16] & ~PPB_PRI_INTB_M ) | ( 1 << PPB_PRI_INTB_S );
 
   // Clear the time-out.
   GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;

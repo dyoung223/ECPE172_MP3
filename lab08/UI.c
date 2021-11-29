@@ -141,10 +141,10 @@ void UIHandler( void ) {
       downVolume();
       break;
     case SKIP_BACKWARD: // '*' maybe #
-        if(secondMenuFlag == False){
-            secondMenuFlag = True;
+        if(secondMenuFlag == false){
+            secondMenuFlag = true;
         }else{
-            secondMenuFlag = False;
+            secondMenuFlag = false;
             playPreviousSong();
         }
       /* not how to do this
@@ -163,10 +163,11 @@ void UIHandler( void ) {
       break;
     case SKIP_FORWARD:  // '#' maybe 0
         if(secondMenuFlag == True){
-            secondMenuFag = False;
-            setDone();
-        }else{
+            secondMenuFlag = False;
             enterQueueMode();
+        }else{
+            setDone();
+
         }
       //setDone();
       break;

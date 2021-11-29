@@ -37,7 +37,7 @@ enum keycmds_t {
   SKIP_FORWARD  = '#', //0
 };
 
-bool secondMenuFlag = False;
+bool secondMenuFlag = false;
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
@@ -64,6 +64,14 @@ static const uint8_t keymap[4][4] = {
 
 };
 
+/*
+static const uint8_t * vol {
+    '01', '02', '03', '04', "05", "06", "07", "08",
+    "09", "10", "11", "12", "13", "14", "15", "16",
+    "17", "18", "19", "2rem0", "21", "22", "23", "24",
+    "25", "26", "27", "28", "29", "30", "31", "32",
+};
+*/
 // Your keypad pin assignments from Lab 4.
 const struct portinfo rowdef = {
     {GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7},
@@ -135,7 +143,8 @@ void UIHandler( void ) {
       stringLCD(shufStr);
       break;
     case VOLUME_UP:     // 'C'
-      upVolume();
+      upVolume(); // change display for vol here
+
       break;
     case VOLUME_DOWN:   // 'D'
       downVolume();
@@ -162,12 +171,12 @@ void UIHandler( void ) {
       //playPreviousSong();
       break;
     case SKIP_FORWARD:  // '#' maybe 0
-        if(secondMenuFlag == True){
-            secondMenuFlag = False;
-            enterQueueMode();
-        }else{
-            setDone();
 
+        if(secondMenuFlag == true){
+            secondMenuFlag = false;
+            setDone();
+        }else{
+            //enterQueueMode();
         }
       //setDone();
       break;

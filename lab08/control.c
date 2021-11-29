@@ -21,6 +21,12 @@ static bool done = false;
 static bool paused = false;
 // Indicates if the MP3 player is in song shuffle mode.
 static bool shuffle = false;
+//Indicates if the MP3 player is in Menu mode. Menu mode displays library and queue. Can select songs from here.
+static bool menu = false;
+//Indicates if the MP3 player is in Queue mode. Queue mode allows user to add songs to the queue. If not songs in queue, go in numerical order.
+static bool queue = false;
+//Indicates if the MP3 player is in Home mode. Home mode displays
+static bool home = true;
 
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
@@ -118,3 +124,29 @@ bool isShuffle( void ) {
 void setShuffle( bool v ) {
   shuffle = v;
 }
+
+// public function to see if MP3 player is in menu mode
+bool isMenuMode( void ) {
+    return menu;
+}
+// public function to toggle menu mode
+void setMenuMode( bool m ) {
+    menu = m;
+}
+//
+bool isQueueMode( void ) {
+    return queue;
+}
+//
+void setQueueMode( bool q ){
+    queue = q;
+}
+// public function to see if MP3 player is in home display mode (song and additional info)
+bool isHomeMode( void ) {
+    return home;
+}
+// public function to toggle home mode
+void setHomeMode( bool h ) {
+    home = h;
+}
+

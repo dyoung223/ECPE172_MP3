@@ -20,6 +20,7 @@
 #include "ssi_uSD.h"
 #include "lcd.h"
 #include "ssi1_DAC.h"
+#include "timer.h"
 #include "timer2A.h"
 #include "timer5A.h"
 #include "UI.h"
@@ -42,6 +43,76 @@ struct id3tags tags;
 
 
 // Decode and play an MP3 file.
+
+void displayHome ( uint8_t song ) {
+    FIL fp;
+
+    // Get the file from the MicroSD card.
+    findMP3( song, &fp );
+
+    // Process ID3 header (if any).
+    getID3Tags( &fp , &tags );
+
+    clearLCD();
+    positionLCD(0,0);
+    stringLCD(tags.title);
+    positionLCD(1,0);
+    stringLCD(tags.artist);
+    positionLCD(2,0);
+    stringLCD(tags.album);
+
+    // add displayLCD to show additional status information (basic function #6)
+    // display additional contents
+    uint8_t * playStr = "Playing |>"; // default is playing
+    uint8_t * shufStr = "Shuff:OFF"; // default is OFF
+    uint8_t * volStr = globalVol; // default is 16
+    uint8_t * songStr[30] = {
+                "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
+                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+                "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+    };
+
+    positionLCD(4,0);
+    stringLCD(playStr);
+    positionLCD(4,11);
+    stringLCD(shufStr);
+    positionLCD(5,0);
+    stringLCD("Volume:");
+    stringLCD(volStr);
+
+    positionLCD(5,11);
+    stringLCD("Song: ");
+    stringLCD(songStr[song]);
+}
+void displayMainMenu( uint8_t song) {
+
+    uint8_t startSong = song - 2;
+    uint8_t pos = 0;
+
+    for (uint8_t i = startSong; i <= startSong + 5; i++){
+        FIL fp;
+
+        // Get the file from the MicroSD card.
+        findMP3( song, &fp );
+
+        // Process ID3 header (if any).
+        getID3Tags( &fp , &tags );
+
+        clearLCD();
+        positionLCD(pos,0);
+        stringLCD(tags.title);
+        pos++;
+    }
+
+    clearLCD();
+    positionLCD(0,0);
+    stringLCD(tags.title);
+    positionLCD(1,0);
+    stringLCD(tags.artist);
+    positionLCD(2,0);
+    stringLCD(tags.album);
+}
+
 void playSong( uint8_t song  ) {
   FIL fp;
 
@@ -52,33 +123,16 @@ void playSong( uint8_t song  ) {
   getID3Tags( &fp , &tags );
 
 
-  // display song contents
-  clearLCD();
-  positionLCD(0,0);
-  stringLCD(tags.title);
-  positionLCD(1,0);
-  stringLCD(tags.artist);
-  positionLCD(2,0);
-  stringLCD(tags.album);
 
-  // add displayLCD to show additional status information (basic function #6)
-  // display additional contents
-  uint8_t * playStr = "Playing |>"; // default is playing
-  uint8_t * shufStr = "Shuff:OFF"; // default is OFF
-  uint8_t * volStr = "16"; // default is 16
-  uint8_t * songStr = "01"; // default is 1
-
-  positionLCD(4,0);
-  stringLCD(playStr);
-  positionLCD(4,11);
-  stringLCD(shufStr);
-  positionLCD(5,0);
-  stringLCD("Volume:");
-  stringLCD(volStr);
-
-  positionLCD(5,11);
-  stringLCD("Song:");
-  stringLCD(songStr);
+  
+  if (isHomeMode() == true) {
+      displayHome(song);
+  }
+  else if (isMenuMode() == true) {
+      displayMainMenu(song);
+  }
+  
+  //displayHome(song);
 
   // Prepare for sound output.
   initSound();
@@ -91,12 +145,7 @@ void playSong( uint8_t song  ) {
 
   // Stop the DAC timer.
   enableTimer2A( false );
-}
 
-
-
-void displayElapsedTime( void ){
-    
 }
 
 main() {
@@ -105,8 +154,9 @@ main() {
   initSSI3();
   initLCD( false );
   initSSI1();
+  //initTimer(32); // for displaying time elapsed
   initTimer2A();
-  //initTimer5A();
+  initTimer5A();
   initUI();
 
   // Initialize structure.

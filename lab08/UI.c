@@ -183,6 +183,7 @@ void UIHandler( void ) {
       //playPreviousSong();
       break;
     case SKIP_FORWARD:  // '#' maybe 0
+
         if(secondMenuFlag == true){
             secondMenuFlag = false;
             setDone();

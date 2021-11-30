@@ -22,6 +22,52 @@ static bool paused = false;
 // Indicates if the MP3 player is in song shuffle mode.
 static bool shuffle = false;
 
+
+
+
+//static uint16_t *buffer;
+//static uint16_t *InPtr;
+//static uint16_t *OutPtr;
+static volatile uint16_t bufferLength;
+//static uint16_t queuebufsize;
+enum {queuePADDING = 30};
+static uint8_t queueArr[30];
+uint8_t numSongsinQueue = 0;
+uint8_t songPlaying;
+
+enum new_cmds {
+  //PLAY_PAUSE    = 'A',
+  //SHUFFLE       = 'B',
+  //VOLUME_UP     = 'C',
+  //VOLUME_DOWN   = 'D',
+  //SKIP_BACKWARD = '*', //#
+  End_Mode      = '#', //0
+};
+
+static const uint8_t new_keymap[4][4] = {
+
+#ifdef KEYPAD_ALPHA
+                              {'D', 'C', 'B', 'A'},
+                              {'E', '9', '8', '7'},
+                              {'F', '8', '5', '4'},
+                              {'0', '7', '2', '1'},
+#endif
+#ifdef KEYPAD_PHONE
+                              {'1', '2', '3', 'A'},
+                              {'4', '5', '6', 'B'},
+                              {'7', '8', '9', 'C'},
+                              {'*', '0', '#', 'D'},
+
+#endif
+#ifdef KEYPAD_ABT
+                              {'0', '1', '2', '3'},
+                              {'4', '5', '6', '7'},
+                              {'8', '9', 'E', 'D'},
+                              {'C', 'B', 'F', 'A'},
+#endif
+
+};
+
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
   return song;
@@ -97,6 +143,116 @@ uint8_t playPreviousSong( void ){
     // Return song number.
     return song;
 
+}/*
+void initQueueBuffer(void){
+
+    static uint16_t *buffer;
+    static uint16_t *InPtr;
+    static uint16_t *OutPtr;
+
+    bufferLength = 0;
+    free( buffer );
+    buffer = NULL;
+
+}*/
+void enterQueueMode(void) {
+    static enum {NOT_PRESSED, PRESSED} state = NOT_PRESSED;
+      uint8_t column, row, key;
+      bool firstDigitFlag = true;
+      uint8_t songNum = 0;
+      songPlaying = 0;
+    #define ADDR new_keymap
+    #define SIZE 4
+      key = 'A';
+      while(key != End_Mode && numSongsinQueue < 30){
+      switch( state ) {
+      case NOT_PRESSED:
+        if( getKey( &column, &row ) == true ) {
+          key = lookup(row, column, SIZE, (uint8_t *)ADDR);
+          state = PRESSED;
+          if(firstDigitFlag == true){
+              songNum = 0;
+              firstDigitFlag = false;
+              if(key == '1'){
+                  songNum = songNum + 10;
+              }else if(key == '2'){
+                  songNum = songNum + 20;
+              }else if(key == '3'){
+                  songNum = songNum + 30;
+              }else{
+                  songNum = songNum;
+              }
+          }else{
+              firstDigitFlag = true;
+              if(key == '1'){
+                    songNum = songNum + 1;
+                }else if(key == '2'){
+                    songNum = songNum + 2;
+                }else if(key == '3'){
+                    songNum = songNum + 3;
+                }else if(key == '4'){
+                    songNum = songNum + 4;
+                }else if(key == '5'){
+                    songNum = songNum + 5;
+                }else if(key == '6'){
+                    songNum = songNum + 6;
+                }else if(key == '7'){
+                    songNum = songNum + 7;
+                }else if(key == '8'){
+                    songNum = songNum + 8;
+                }else if(key == '9'){
+                    songNum = songNum + 9;
+                }
+                else{
+                    songNum = songNum;
+                }
+             if(songNum > 30){ //protect against song values that don't exist
+                 songNum = songNum % 30;
+             }
+              //push song into circular buffer
+             queueArr[numSongsinQueue] = songNum;
+             numSongsinQueue++;
+
+          }
+          //return (uint16_t)key;
+        }
+        //break;
+      case PRESSED:
+        if( getKey( &column, &row ) == false )
+          state = NOT_PRESSED;
+        //break;
+         }
+
+      }
+}
+
+uint8_t playQueueSongs(void){
+
+    if(numSongsinQueue > 0){
+        //play queueArr[songPlaying]
+        song = queueArr[songPlaying];
+        songPlaying++;
+        numSongsinQueue = numSongsinQueue - 1;
+        return song;
+
+    }else{
+        //return -1 to indicate that the queue has finished playing.
+
+        return 255;
+    }
+    /*
+    while(bufferLength > 0){
+        //send next song at *OutPtr++ to be played
+
+        bufferLength -= 1;
+        if((buffer + queuebufsize + queuePADDING) == OutPtr){
+            OutPtr = buffer;
+        }
+
+    }
+
+    bufferLength = 0;
+    */
 }
 
 // Indicates whether the MP3 player is paused.

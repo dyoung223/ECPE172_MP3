@@ -21,6 +21,7 @@
 #include "keypad.h"
 #include "lookup.h"
 #include "lcd.h"
+#include "timer5A.h"
 
 // Various hooks for MP3 player
 #include "control.h"
@@ -35,6 +36,9 @@ enum keycmds_t {
   VOLUME_DOWN   = 'D',
   SKIP_BACKWARD = '*', //#
   SKIP_FORWARD  = '#', //0
+  MENU          = '2',
+  QUEUE         = '3',
+  RETURN        = '1',
 };
 
 bool secondMenuFlag = false;
@@ -66,14 +70,16 @@ static const uint8_t keymap[4][4] = {
 
 };
 
-/*
-static const uint8_t * vol {
-    '01', '02', '03', '04', "05", "06", "07", "08",
-    "09", "10", "11", "12", "13", "14", "15", "16",
-    "17", "18", "19", "2rem0", "21", "22", "23", "24",
-    "25", "26", "27", "28", "29", "30", "31", "32",
+
+uint8_t * vol[33] = {
+    " 00 ", " 01 ", " 02 ", " 03 ", " 04 ", " 05 ", " 06 ", " 07 ", " 08 ",
+    " 09 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 ",
+    " 17 ", " 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 ",
+    " 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 ", " 32 ",
 };
-*/
+
+uint8_t * globalVol = " 16 ";
+
 // Your keypad pin assignments from Lab 4.
 const struct portinfo rowdef = {
     {GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7},
@@ -118,6 +124,7 @@ void UIHandler( void ) {
   uint8_t * playStr;
   uint8_t * shufStr;
 
+
   if( key != UINT16_MAX ) {
     switch( (enum keycmds_t)key ) {
     case PLAY_PAUSE:    // 'A'
@@ -146,10 +153,15 @@ void UIHandler( void ) {
       break;
     case VOLUME_UP:     // 'C'
       upVolume(); // change display for vol here
-
+      positionLCD(5,7);
+      stringLCD(vol[getVolume()]);
+      globalVol = vol[getVolume()];
       break;
     case VOLUME_DOWN:   // 'D'
       downVolume();
+      positionLCD(5,7);
+      stringLCD(vol[getVolume()]);
+      globalVol = vol[getVolume()];
       break;
     case SKIP_BACKWARD: // '*' maybe #
         if(secondMenuFlag == false){
@@ -186,13 +198,26 @@ void UIHandler( void ) {
         setDone();
       //setDone();
       break;
+    case MENU:
+        if (isMenuMode() == false) {
+            setMenuMode(true);
+        }
+        else {
+            setMenuMode(false);
+        }
+    case RETURN:
+        if (isQueueMode() == true){
+
+        }
     default:            // Numeric keys
       break;
     }
   }
 
   // Clear the time-out.
-  GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;
+  clearTimer5A();
+  //GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;
+
 }
 
 void initUI( void ) {

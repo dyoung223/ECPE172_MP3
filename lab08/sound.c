@@ -30,7 +30,7 @@ static volatile uint16_t dataLength, dataAdded;
 static uint16_t bufsize;
 
 // The additional storage in the buffers to keep from running out of data.
-enum {PADDING = 32};
+enum {PADDING = 64};
 
 // The DAC buffers.  Each channel has its own buffer.  Each buffer
 // can hold two "chunks" of data.

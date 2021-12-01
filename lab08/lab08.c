@@ -122,9 +122,6 @@ void playSong( uint8_t song  ) {
   // Process ID3 header (if any).
   getID3Tags( &fp , &tags );
 
-
-
-  
   if (isHomeMode() == true) {
       displayHome(song);
   }

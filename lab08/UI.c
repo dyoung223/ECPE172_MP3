@@ -42,6 +42,8 @@ enum keycmds_t {
 };
 
 bool secondMenuFlag = false;
+bool queueModeOn = false;
+bool queueModeSelection = false;
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
@@ -186,10 +188,14 @@ void UIHandler( void ) {
 
         if(secondMenuFlag == true){
             secondMenuFlag = false;
-            setDone();
+            queueModeOn = true;
+            queueModeSelection = true;
+
         }else{
+            //setDone();
             //enterQueueMode();
         }
+        setDone();
       //setDone();
       break;
     case MENU:

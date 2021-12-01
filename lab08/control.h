@@ -23,11 +23,17 @@ void setPaused( bool v );
 bool isPaused( void );
 void setShuffle( bool v );
 bool isShuffle( void );
+
 bool isMenuMode( void );
 void setMenuMode( bool m );
 bool isQueueMode( void );
 void setQueueMode( bool q );
 bool isHomeMode( void );
 void setHomeMode( bool h );
+
+void enterQueueMode(void);
+void initQueueBuffer(void);
+uint8_t playQueueSongs(void);
+
 
 #endif // _CONTROL_H

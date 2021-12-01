@@ -5,7 +5,10 @@
 // #define SYSCTL_RCGCTIMER_TIMER5 (1<<5)
 // Place these definitions in your gptm.h and gptm.h file, if missing:
 #define GPTM_TIMER5 ((volatile uint32_t *)0x40035000)
-// Merge these definitions in your ppb.h file:
+
+extern bool queueModeOn;
+extern bool queueModeSelection;
+
 enum {
   PPB_EN2 = (0x108 >> 2),
 #define   PPB_EN2_TIMER5A    (1<<(65-2*32))

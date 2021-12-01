@@ -166,10 +166,29 @@ main() {
 
   // Obligatory endless loop.
   while( true ) {
-    // Get the next file from the MicroSD card.
-    uint8_t song = getSong();
 
-    // Send the file to the MP3 decoder
-    playSong( song );
+    //add the logic for doing queue mode here
+    if(queueModeOn == true && queueModeSelection == true){
+        enterQueueMode();
+        queueModeSelection = false;
+
+    }else if(queueModeOn == true && queueModeSelection == false){
+        uint8_t song = playQueueSongs();
+        if(song == 255){
+            //isDone();
+            queueModeOn = false;
+
+        }else{
+            playSong(song);
+        }
+    }else{
+    // Get the next file from the MicroSD card.
+        uint8_t song = getSong();
+
+        // Send the file to the MP3 decoder
+        playSong( song );
+    }
+
+
   }
 }

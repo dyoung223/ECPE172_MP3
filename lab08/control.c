@@ -76,7 +76,8 @@ static const uint8_t new_keymap[4][4] = {
 
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
-  return song;
+  //return rand() % numSong;
+    return song;
 }
 
 // Return the number of the song to play.  Initially, just
@@ -95,7 +96,8 @@ uint8_t getSong( void ) {
   if( shuffle == false ) {
     song = ( song + 1 ) % numSongs;
   } else {
-    song = getShuffle( song );
+    //song = getShuffle( song );
+      song = rand() % numSongs;
   }
 
   // Return song number.
@@ -216,7 +218,7 @@ void enterQueueMode(void) {
                  songNum = songNum % 30;
              }
               //push song into circular buffer
-             queueArr[numSongsinQueue] = songNum;
+             queueArr[numSongsinQueue] = songNum - 1;
              numSongsinQueue++;
 
           }

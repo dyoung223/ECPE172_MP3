@@ -76,6 +76,9 @@ void displayHome ( uint8_t song ) {
     positionLCD(4,0);
     stringLCD(playStr);
     positionLCD(4,11);
+    if(isShuffle() == true){
+        shufStr = "Shuff: ON";
+    }
     stringLCD(shufStr);
     positionLCD(5,0);
     stringLCD("Volume:");

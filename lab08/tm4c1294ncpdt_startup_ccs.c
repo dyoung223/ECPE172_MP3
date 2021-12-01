@@ -57,7 +57,7 @@ extern uint32_t __STACK_TOP;
 //*****************************************************************************
 // To be added by user
 extern void writeDACs(void);
-//extern void UIHandler(void);
+extern void UIHandler(void);
 //*****************************************************************************
 //
 // The vector table.  Note that the proper constructs must be placed on this to

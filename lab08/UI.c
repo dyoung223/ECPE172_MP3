@@ -20,10 +20,13 @@
 #include "sysctl.h"
 #include "keypad.h"
 #include "lookup.h"
+#include "lcd.h"
+#include "timer5A.h"
 
 // Various hooks for MP3 player
 #include "control.h"
 #include "UI.h"
+#include "sound.h"
 
 // Definitions for function keys
 enum keycmds_t {
@@ -31,9 +34,21 @@ enum keycmds_t {
   SHUFFLE       = 'B',
   VOLUME_UP     = 'C',
   VOLUME_DOWN   = 'D',
+<<<<<<< HEAD
   SKIP_BACKWARD = '*',
   SKIP_FORWARD  = '#',
+=======
+  SKIP_BACKWARD = '*', //#
+  SKIP_FORWARD  = '#', //0
+  MENU          = '2',
+  QUEUE         = '3',
+  RETURN        = '1',
+>>>>>>> 78efc86ff05763185a66e9accd71459864a26276
 };
+
+bool secondMenuFlag = false;
+bool queueModeOn = false;
+bool queueModeSelection = false;
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
@@ -59,6 +74,16 @@ static const uint8_t keymap[4][4] = {
 #endif
 
 };
+
+
+uint8_t * vol[33] = {
+    " 00 ", " 01 ", " 02 ", " 03 ", " 04 ", " 05 ", " 06 ", " 07 ", " 08 ",
+    " 09 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 ",
+    " 17 ", " 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 ",
+    " 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 ", " 32 ",
+};
+
+uint8_t * globalVol = " 16 ";
 
 // Your keypad pin assignments from Lab 4.
 const struct portinfo rowdef = {
@@ -101,32 +126,110 @@ static uint16_t UIKey( void ) {
 // keypad and if a new key is detected, performs necessary actions.
 void UIHandler( void ) {
   uint16_t key = UIKey( ); 
+  uint8_t * playStr;
+  uint8_t * shufStr;
+
+
   if( key != UINT16_MAX ) {
     switch( (enum keycmds_t)key ) {
     case PLAY_PAUSE:    // 'A'
       setPaused( isPaused() == false );
+      // display pause state of MP3
+      positionLCD(4,0);
+      if (isPaused()) {
+          playStr = "PAUSED  ||";
+      }
+      else {
+          playStr = "PLAYING |>";
+      }
+      stringLCD(playStr);
       break;
     case SHUFFLE:       // 'B'
       setShuffle( isShuffle() == false );
+      positionLCD(4,11);
+      stringLCD("Shuff:");
+      if (isShuffle()){
+          shufStr = " ON";
+      }
+      else {
+          shufStr = "OFF";
+      }
+      stringLCD(shufStr);
       break;
     case VOLUME_UP:     // 'C'
-      upVolume();
+      upVolume(); // change display for vol here
+      positionLCD(5,7);
+      stringLCD(vol[getVolume()]);
+      globalVol = vol[getVolume()];
       break;
     case VOLUME_DOWN:   // 'D'
       downVolume();
+      positionLCD(5,7);
+      stringLCD(vol[getVolume()]);
+      globalVol = vol[getVolume()];
       break;
+<<<<<<< HEAD
     case SKIP_BACKWARD: // 'E' maybe *
       break;
     case SKIP_FORWARD:  // 'F' maybe #
       setDone();
+=======
+    case SKIP_BACKWARD: // '*' maybe #
+        if(secondMenuFlag == false){
+            secondMenuFlag = true;
+        }else{
+            secondMenuFlag = false;
+            playPreviousSong();
+        }
+      /* not how to do this
+        while(true){
+          key = UIKey( );
+          if(key == SKIP_BACKWARD){
+              playPreviousSong()
+              break;
+          }else if(key == SKIP_FORWARD){
+              setDone();
+              break;
+          }
+      }
+      */
+      //playPreviousSong();
       break;
+    case SKIP_FORWARD:  // '#' maybe 0
+
+        if(secondMenuFlag == true){
+            secondMenuFlag = false;
+            queueModeOn = true;
+            queueModeSelection = true;
+
+        }else{
+            //setDone();
+            //enterQueueMode();
+        }
+        setDone();
+      //setDone();
+>>>>>>> 78efc86ff05763185a66e9accd71459864a26276
+      break;
+    case MENU:
+        if (isMenuMode() == false) {
+            setMenuMode(true);
+        }
+        else {
+            setMenuMode(false);
+        }
+    case RETURN:
+        if (isQueueMode() == true){
+
+        }
     default:            // Numeric keys
       break;
     }
   }
 
   // Clear the time-out.
-  GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;
+  clearTimer5A();
+  //GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;
+
 }
 
 void initUI( void ) {
@@ -153,7 +256,7 @@ void initUI( void ) {
   PPB[PPB_EN2] |= PPB_EN2_TIMER5A;
 
   // Set priority level to 1 (lower priority than Timer2A).
-  PPB[PPB_PRI16] = ( PPB[PPB_PRI16] & PPB_PRI_INTB_M ) | ( 1 << PPB_PRI_INTB_S );
+  PPB[PPB_PRI16] = ( PPB[PPB_PRI16] & ~PPB_PRI_INTB_M ) | ( 1 << PPB_PRI_INTB_S );
 
   // Clear the time-out.
   GPTM_TIMER5[GPTM_ICR] |= GPTM_ICR_TATOCINT;

@@ -1,6 +1,7 @@
 
 ///// TEST //////
 
+
 /*
  * lab08.c
  *
@@ -161,7 +162,7 @@ main() {
 
   // Find out how many MP3 files are on the card.
   uint8_t numSongs = countMP3();
-  numSongs = countMP3();
+  //numSongs = countMP3();
   setNumSongs( numSongs );
 
   // Obligatory endless loop.

@@ -40,6 +40,9 @@ enum {queuePADDING = 30};
 static uint8_t queueArr[30];
 uint8_t numSongsinQueue = 0;
 uint8_t songPlaying;
+bool initialPlay = false;
+//bool veryFirstPlay = true;
+
 
 enum new_cmds {
   //PLAY_PAUSE    = 'A',
@@ -172,6 +175,9 @@ void enterQueueMode(void) {
     #define ADDR new_keymap
     #define SIZE 4
       key = 'A';
+      for(uint8_t iter = 0; iter < 30; iter++){
+          queueArr[iter] = 0;
+      }
       while(key != End_Mode && numSongsinQueue < 30){
       switch( state ) {
       case NOT_PRESSED:
@@ -237,10 +243,18 @@ void enterQueueMode(void) {
 uint8_t playQueueSongs(void){
 
     if(numSongsinQueue > 0){
-        //play queueArr[songPlaying]
-        song = queueArr[songPlaying];
-        songPlaying++;
-        numSongsinQueue = numSongsinQueue - 1;
+        if(songPlaying == 0 && initialPlay == true){
+            //protect against bug where the initial song doesn't play, by spoofing the song before
+            song = queueArr[songPlaying]-1;
+            initialPlay = false;
+
+        }else{
+            //play queueArr[songPlaying]
+            song = queueArr[songPlaying];
+            songPlaying++;
+            numSongsinQueue = numSongsinQueue - 1;
+        }
+
         return song;
 
     }else{

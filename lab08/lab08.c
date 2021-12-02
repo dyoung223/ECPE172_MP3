@@ -177,9 +177,12 @@ main() {
     if(queueModeOn == true && queueModeSelection == true){
         enterQueueMode();
         queueModeSelection = false;
+        initialPlay = true;
+
 
     }else if(queueModeOn == true && queueModeSelection == false){
         uint8_t song = playQueueSongs();
+        //veryFirstPlay = false;
         if(song == 255){
             //isDone();
             queueModeOn = false;

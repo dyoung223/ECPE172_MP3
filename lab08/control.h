@@ -12,6 +12,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+extern bool initialPlay;
+//extern bool veryFirstPlay;
+
 uint8_t getNumSongs( void );
 void setNumSongs( uint8_t num );
 uint8_t getSong( void );

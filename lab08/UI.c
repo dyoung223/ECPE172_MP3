@@ -164,28 +164,19 @@ void UIHandler( void ) {
       globalVol = vol[getVolume()];
       break;
     case SKIP_BACKWARD: // '*' maybe #
+        /*
         if(secondMenuFlag == false){
             secondMenuFlag = true;
         }else{
             secondMenuFlag = false;
             playPreviousSong();
         }
-      /* not how to do this
-        while(true){
-          key = UIKey( );
-          if(key == SKIP_BACKWARD){
-              playPreviousSong()
-              break;
-          }else if(key == SKIP_FORWARD){
-              setDone();
-              break;
-          }
-      }
-      */
-      //playPreviousSong();
+        */
+
+      playPreviousSong();
       break;
     case SKIP_FORWARD:  // '#' maybe 0
-
+           /*
         if(secondMenuFlag == true){
             secondMenuFlag = false;
             queueModeOn = true;
@@ -195,9 +186,15 @@ void UIHandler( void ) {
             //setDone();
             //enterQueueMode();
         }
+        */
         setDone();
       //setDone();
       break;
+    case QUEUE:
+        queueModeOn = true;
+        queueModeSelection = true;
+        setDone();
+        break;
     case MENU:
         if (isMenuMode() == false) {
             setMenuMode(true);

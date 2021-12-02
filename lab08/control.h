@@ -25,6 +25,8 @@ bool isShuffle( void );
 void enterQueueMode(void);
 void initQueueBuffer(void);
 uint8_t playQueueSongs(void);
-
+uint8_t playPreviousSong( void );
+bool isPrevious( void );
+void setPrevious( bool v );
 
 #endif // _CONTROL_H

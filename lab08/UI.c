@@ -80,6 +80,7 @@ uint8_t * vol[33] = {
 };
 
 uint8_t * globalVol = " 16 ";
+uint16_t count = 0;
 
 // Your keypad pin assignments from Lab 4.
 const struct portinfo rowdef = {
@@ -124,6 +125,39 @@ void UIHandler( void ) {
   uint16_t key = UIKey( ); 
   uint8_t * playStr;
   uint8_t * shufStr;
+
+  if (isPaused() == false) { // count while song is playing
+
+      char second[4];
+      char minute[4];
+
+      if ((GPTM_TIMER3[GPTM_RIS] & GPTM_RIS_TATORIS) == 1){
+          GPTM_TIMER3[GPTM_ICR] = GPTM_ICR_TATOCINT;
+          count++;
+
+          if (count%10 == 0) {
+              uint8_t seconds = (count / 10) % 60;
+              uint8_t minutes = count / 600;
+              positionLCD(7,0);
+
+              sprintf(second, "%d", seconds);
+              sprintf(minute, "%d", minutes);
+
+              stringLCD("Time: ");
+              stringLCD("       ");
+              positionLCD(7,6);
+              stringLCD(minute);
+              stringLCD("m ");
+              stringLCD(second);
+              stringLCD("s");
+          }
+
+      }
+
+      if (isDone() == true) {
+          count = 0;
+      }
+  }
 
 
   if( key != UINT16_MAX ) {

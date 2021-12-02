@@ -49,7 +49,7 @@ enum {
 #include "osc.h"
 
 // Frequency of switching between left and right LED display
-#define   SWITCHFREQ    200
+#define   SWITCHFREQ    10 // for a timer that flags every tenth of a second
 
 // Add the calculation for your reload value here.
 #define RELOAD_VALUE    (MAINOSCFREQ/SWITCHFREQ)

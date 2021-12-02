@@ -1,6 +1,7 @@
 
 ///// TEST //////
 
+
 /*
  * lab08.c
  *
@@ -86,6 +87,9 @@ void displayHome ( uint8_t song ) {
     positionLCD(5,11);
     stringLCD("Song: ");
     stringLCD(songStr[song]);
+
+    positionLCD(7,0);
+    stringLCD("Time: 0m 0s");
 }
 void displayMainMenu( uint8_t song) {
 
@@ -125,9 +129,6 @@ void playSong( uint8_t song  ) {
   // Process ID3 header (if any).
   getID3Tags( &fp , &tags );
 
-
-
-  
   if (isHomeMode() == true) {
       displayHome(song);
   }
@@ -149,6 +150,8 @@ void playSong( uint8_t song  ) {
   // Stop the DAC timer.
   enableTimer2A( false );
 
+  setDone();
+
 }
 
 main() {
@@ -157,7 +160,7 @@ main() {
   initSSI3();
   initLCD( true );
   initSSI1();
-  //initTimer(32); // for displaying time elapsed
+  initTimer(32); // for displaying time elapsed
   initTimer2A();
   initTimer5A();
   initUI();

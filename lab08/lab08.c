@@ -158,7 +158,7 @@ main() {
   // Initialize clock, SSIs, and Timer
   initOsc();
   initSSI3();
-  initLCD( false );
+  initLCD( true );
   initSSI1();
   initTimer(32); // for displaying time elapsed
   initTimer2A();

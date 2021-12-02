@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "control.h"
 
@@ -79,8 +80,13 @@ static const uint8_t new_keymap[4][4] = {
 
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
+<<<<<<< HEAD
+  song = rand() % getNumSongs(); //Destiny Shuffle mode
+  return song;
+=======
   //return rand() % numSong;
     return song;
+>>>>>>> 78efc86ff05763185a66e9accd71459864a26276
 }
 
 // Return the number of the song to play.  Initially, just

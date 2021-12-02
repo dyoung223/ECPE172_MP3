@@ -39,6 +39,7 @@ enum keycmds_t {
   MENU          = '2',
   QUEUE         = '3',
   RETURN        = '1',
+
 };
 
 bool secondMenuFlag = false;
@@ -197,21 +198,54 @@ void UIHandler( void ) {
       stringLCD(vol[getVolume()]);
       globalVol = vol[getVolume()];
       break;
+
     case SKIP_BACKWARD: // '*' maybe #
-        /*
+  /*
         if(secondMenuFlag == false){
             secondMenuFlag = true;
         }else{
             secondMenuFlag = false;
             playPreviousSong();
         }
-        */
 
+*/
       playPreviousSong();
       break;
+
     case SKIP_FORWARD:  // '#' maybe 0
            /*
-        if(secondMenuFlag == true){
+
+
+    case SKIP_BACKWARD: // '*'
+/*        if(secondMenuFlag == false){
+            secondMenuFlag = true;
+        }else{
+            secondMenuFlag = false;
+
+            //playPreviousSong();
+        }*/
+        setPrevious( isPrevious() == false );
+        setDone(); //******added per Dr. Basha to use getSong()
+      /* not how to do this
+        while(true){
+          key = UIKey( );
+          if(key == SKIP_BACKWARD){
+              playPreviousSong()
+              break;
+          }else if(key == SKIP_FORWARD){
+              setDone();
+              break;
+          }
+      }
+      */
+      //playPreviousSong();
+      break;
+    /
+
+   // case SKIP_FORWARD:  // '#'
+        //setDone(); //******added per Dr. Basha to use getSong()
+
+       /* if(secondMenuFlag == true){
             secondMenuFlag = false;
             queueModeOn = true;
             queueModeSelection = true;
@@ -221,9 +255,10 @@ void UIHandler( void ) {
             //enterQueueMode();
         }
         */
-        setDone();
+
       //setDone();
-      break;
+
+     // break;
     case QUEUE:
         queueModeOn = true;
         queueModeSelection = true;

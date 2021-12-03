@@ -7,10 +7,22 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include "control.h"
+
+#include "ff.h"
+
+#include "MP3utils.h"
+#include "ID3.h"
+#include "lcd.h"
+#include "sound.h"
+#include "keypad.h"
+#include "lookup.h"
+
+struct id3tags tags;
 
 // The total number of songs on the MicroSD card.
 static uint8_t numSongs;
@@ -28,6 +40,9 @@ static bool menu = false;
 static bool queue = false;
 //Indicates if the MP3 player is in Home mode. Home mode displays
 static bool home = true;
+
+bool queueModeOn = false;
+bool queueModeSelection = false;
 
 
 
@@ -80,13 +95,9 @@ static const uint8_t new_keymap[4][4] = {
 
 // Private procedure for selecting the next song in shuffle mode.
 static uint8_t getShuffle( uint8_t song ) {
-<<<<<<< HEAD
+
   song = rand() % getNumSongs(); //Destiny Shuffle mode
   return song;
-=======
-  //return rand() % numSong;
-    return song;
->>>>>>> 78efc86ff05763185a66e9accd71459864a26276
 }
 
 // Return the number of the song to play.  Initially, just
@@ -104,13 +115,19 @@ uint8_t getSong( void ) {
   // Otherwise pick the next song to play.
   if( shuffle == false ) {
     song = ( song + 1 ) % numSongs;
-  } else {
+  }
+
+  else {
     //song = getShuffle( song );
       song = rand() % numSongs;
   }
 
   // Return song number.
   return song;
+}
+
+uint8_t getCurSong( void ) {
+    return song;
 }
 
 // Store the total number of songs (needed by getSong()).
@@ -172,6 +189,83 @@ void initQueueBuffer(void){
     buffer = NULL;
 
 }*/
+void displayVol( void ) {
+    char vol[4];
+    uint8_t volume = getVolume();
+    sprintf(vol, "%d", volume);
+    stringLCD(vol);
+    stringLCD(" ");
+}
+
+void enterMenuMode( uint8_t curSong ) {
+    uint8_t pos = 0;
+    uint8_t startSong = curSong;
+
+    clearLCD();
+    for (uint8_t i = startSong; i <= startSong + 5; i++){
+        FIL fp;
+
+        // Get the file from the MicroSD card.
+        findMP3( i % 30, &fp );
+
+        // Process ID3 header (if any).
+        getID3Tags( &fp , &tags );
+
+        positionLCD(pos,0);
+        stringLCD(tags.title);
+        if (pos == 0){
+            pos++;
+        }
+        pos++;
+    }
+    return;
+}
+void exitMenuMode( uint8_t curSong) {
+    char volStr[4];
+    char songStr[4];
+    FIL fp;
+
+    // Get the file from the MicroSD card.
+    findMP3( curSong, &fp );
+
+    // Process ID3 header (if any).
+    getID3Tags( &fp , &tags );
+
+    clearLCD();
+    positionLCD(0,0);
+    stringLCD(tags.title);
+    positionLCD(1,0);
+    stringLCD(tags.artist);
+    positionLCD(2,0);
+    stringLCD(tags.album);
+
+    // add displayLCD to show additional status information (basic function #6)
+    // display additional contents
+    uint8_t * playStr = "Playing |>"; // default is playing
+    uint8_t * shufStr = "Shuff:OFF"; // default is OFF
+    sprintf(volStr, "%d", getVolume()); // default is 16
+    sprintf(songStr, "%d", curSong + 1);
+
+    positionLCD(4,0);
+    stringLCD(playStr);
+    positionLCD(4,11);
+    if(isShuffle() == true){
+        shufStr = "Shuff: ON";
+    }
+    stringLCD(shufStr);
+    positionLCD(5,0);
+    stringLCD("Volume: ");
+    stringLCD(volStr);
+
+    positionLCD(5,11);
+    stringLCD("Song: ");
+    stringLCD(songStr);
+
+    positionLCD(7,0);
+    stringLCD("Time: ");
+    return;
+}
+
 void enterQueueMode(void) {
     static enum {NOT_PRESSED, PRESSED} state = NOT_PRESSED;
       uint8_t column, row, key;

@@ -8,6 +8,7 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,15 +37,11 @@ enum keycmds_t {
   VOLUME_DOWN   = 'D',
   SKIP_BACKWARD = '*', //#
   SKIP_FORWARD  = '#', //0
-  MENU          = '2',
+  MENU          = '1',
   QUEUE         = '3',
-  RETURN        = '1',
+  PLAYLIST      = '2',
 
 };
-
-bool secondMenuFlag = false;
-bool queueModeOn = false;
-bool queueModeSelection = false;
 
 // Your keypad key assignments from Lab 4.
 static const uint8_t keymap[4][4] = {
@@ -72,14 +69,14 @@ static const uint8_t keymap[4][4] = {
 };
 
 
-uint8_t * vol[33] = {
+uint8_t * vols[33] = {
     " 00 ", " 01 ", " 02 ", " 03 ", " 04 ", " 05 ", " 06 ", " 07 ", " 08 ",
     " 09 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 ",
     " 17 ", " 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 ",
     " 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 ", " 32 ",
 };
 
-uint8_t * globalVol = " 16 ";
+uint8_t entrySong;
 uint16_t count = 0;
 
 // Your keypad pin assignments from Lab 4.
@@ -125,6 +122,9 @@ void UIHandler( void ) {
   uint16_t key = UIKey( ); 
   uint8_t * playStr;
   uint8_t * shufStr;
+  char vol[4];
+  uint8_t iter = getCurSong();
+  //setSong(getSong()-1); // because everytime getSong() is called, song is iterated up
 
   if (isPaused() == false) { // count while song is playing
 
@@ -163,16 +163,19 @@ void UIHandler( void ) {
   if( key != UINT16_MAX ) {
     switch( (enum keycmds_t)key ) {
     case PLAY_PAUSE:    // 'A'
-      setPaused( isPaused() == false );
+      // setPaused( isPaused() == false ); moved to inside if. do not want to be able to play during menu screen
       // display pause state of MP3
-      positionLCD(4,0);
-      if (isPaused()) {
-          playStr = "PAUSED  ||";
+      if (isMenuMode() == false){
+          setPaused( isPaused() == false );
+          positionLCD(4,0);
+          if (isPaused()) {
+              playStr = "PAUSED  ||";
+          }
+          else {
+              playStr = "PLAYING |>";
+          }
+          stringLCD(playStr);
       }
-      else {
-          playStr = "PLAYING |>";
-      }
-      stringLCD(playStr);
       break;
     case SHUFFLE:       // 'B'
       setShuffle( isShuffle() == false );
@@ -188,15 +191,13 @@ void UIHandler( void ) {
       break;
     case VOLUME_UP:     // 'C'
       upVolume(); // change display for vol here
-      positionLCD(5,7);
-      stringLCD(vol[getVolume()]);
-      globalVol = vol[getVolume()];
+      positionLCD(5,8);
+      displayVol();
       break;
     case VOLUME_DOWN:   // 'D'
       downVolume();
-      positionLCD(5,7);
-      stringLCD(vol[getVolume()]);
-      globalVol = vol[getVolume()];
+      positionLCD(5,8);
+      displayVol();
       break;
 
     case SKIP_BACKWARD: // '*' maybe #
@@ -209,23 +210,44 @@ void UIHandler( void ) {
         }
 
 */
-      playPreviousSong();
+      if (isMenuMode() == true){
+          if (getCurSong() == 0) { // protection against negative integers when going back on first song
+              enterMenuMode(getNumSongs() - 1);
+              setSong(getNumSongs()); // setSong already decrements
+          }
+          else {
+              enterMenuMode(getCurSong() - 1);
+              setSong(getCurSong());
+              //setSong(getSong() - 2);
+          }
+      }
+      else {
+          playPreviousSong();
+      }
       break;
 
     case SKIP_FORWARD:  // '#' maybe 0
-           /*
+      if (isMenuMode() == true) {
+          enterMenuMode(getSong());
+          setSong(getSong());
+      }
+      else {
+          setDone();
+      }
+      break;
 
 
-    case SKIP_BACKWARD: // '*'
+
+    //case SKIP_BACKWARD: // '*'
 /*        if(secondMenuFlag == false){
             secondMenuFlag = true;
         }else{
             secondMenuFlag = false;
 
-            //playPreviousSong();
+            playPreviousSong();
         }*/
-        setPrevious( isPrevious() == false );
-        setDone(); //******added per Dr. Basha to use getSong()
+        //setPrevious( isPrevious() == false );
+        //setDone(); //******added per Dr. Basha to use getSong()
       /* not how to do this
         while(true){
           key = UIKey( );
@@ -240,7 +262,7 @@ void UIHandler( void ) {
       */
       //playPreviousSong();
       break;
-    /
+
 
    // case SKIP_FORWARD:  // '#'
         //setDone(); //******added per Dr. Basha to use getSong()
@@ -267,14 +289,44 @@ void UIHandler( void ) {
     case MENU:
         if (isMenuMode() == false) {
             setMenuMode(true);
+            setPaused(true);
+            entrySong = getCurSong();
+            enterMenuMode(getCurSong());
         }
         else {
             setMenuMode(false);
+            exitMenuMode(getCurSong());
+            if ((getCurSong()) != entrySong){
+                setPaused(false);
+                if (getCurSong() == 0) { // protection against negative integers when going back on first song
+                    setSong(getNumSongs()); // setSong already decrements
+                }
+                else if (getCurSong() == getNumSongs() - 1) {
+                    setSong(getCurSong());
+                }
+                else {
+                    setSong(getCurSong()-1);
+                }
+                setDone();
+            }
+            else {
+                setPaused(false);
+            }
         }
-    case RETURN:
-        if (isQueueMode() == true){
-
+        break;
+    case PLAYLIST:
+        /*
+        if (isMenuMode() == true && queueModeSelection == false && playlistModeOn == false) { // in menu
+            setMenuMode(false); // set flag low so that go back to home display
         }
+        else if (isMenuMode() == true && queueModeSelection == true && playlistModeOn == false) { // in
+            queueModeSelection = false; // set flag low to go back to regular menu
+        }
+        else if (isMenuMode() == true && queueModeSelection == false && playlistModeOn == true) {
+            playlistModeOn = false; // set flag low to go back to regular menu
+        }
+        */
+        break;
     default:            // Numeric keys
       break;
     }

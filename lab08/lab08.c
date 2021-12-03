@@ -46,6 +46,8 @@ struct id3tags tags;
 // Decode and play an MP3 file.
 
 void displayHome ( uint8_t song ) {
+    char volStr[4];
+    char songStr[4];
     FIL fp;
 
     // Get the file from the MicroSD card.
@@ -66,12 +68,13 @@ void displayHome ( uint8_t song ) {
     // display additional contents
     uint8_t * playStr = "Playing |>"; // default is playing
     uint8_t * shufStr = "Shuff:OFF"; // default is OFF
-    uint8_t * volStr = globalVol; // default is 16
-    uint8_t * songStr[30] = {
+    sprintf(volStr, "%d", getVolume()); // default is 16
+    /*uint8_t * songStr[30] = {
                 "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
                 "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
                 "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-    };
+    };*/
+    sprintf(songStr, "%d", song + 1);
 
     positionLCD(4,0);
     stringLCD(playStr);
@@ -81,20 +84,23 @@ void displayHome ( uint8_t song ) {
     }
     stringLCD(shufStr);
     positionLCD(5,0);
-    stringLCD("Volume:");
+    stringLCD("Volume: ");
     stringLCD(volStr);
 
     positionLCD(5,11);
     stringLCD("Song: ");
-    stringLCD(songStr[song]);
+    stringLCD(songStr);
 
     positionLCD(7,0);
     stringLCD("Time: 0m 0s");
 }
+/*
 void displayMainMenu( uint8_t song) {
 
     uint8_t startSong = song - 2;
     uint8_t pos = 0;
+
+    clearLCD();
 
     for (uint8_t i = startSong; i <= startSong + 5; i++){
         FIL fp;
@@ -105,21 +111,14 @@ void displayMainMenu( uint8_t song) {
         // Process ID3 header (if any).
         getID3Tags( &fp , &tags );
 
-        clearLCD();
+
         positionLCD(pos,0);
         stringLCD(tags.title);
         pos++;
     }
 
-    clearLCD();
-    positionLCD(0,0);
-    stringLCD(tags.title);
-    positionLCD(1,0);
-    stringLCD(tags.artist);
-    positionLCD(2,0);
-    stringLCD(tags.album);
 }
-
+*/
 void playSong( uint8_t song  ) {
   FIL fp;
 
@@ -129,12 +128,14 @@ void playSong( uint8_t song  ) {
   // Process ID3 header (if any).
   getID3Tags( &fp , &tags );
 
-  if (isHomeMode() == true) {
+  /*if (isHomeMode() == true) {
       displayHome(song);
   }
   else if (isMenuMode() == true) {
       displayMainMenu(song);
   }
+  */
+  displayHome(song);
   
   //displayHome(song);
 
@@ -158,7 +159,7 @@ main() {
   // Initialize clock, SSIs, and Timer
   initOsc();
   initSSI3();
-  initLCD( true );
+  initLCD( false );
   initSSI1();
   initTimer(32); // for displaying time elapsed
   initTimer2A();

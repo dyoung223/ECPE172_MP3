@@ -13,11 +13,14 @@
 #include <stdbool.h>
 
 extern bool initialPlay;
+extern bool queueModeOn;
+extern bool queueModeSelection;
 //extern bool veryFirstPlay;
 
 uint8_t getNumSongs( void );
 void setNumSongs( uint8_t num );
 uint8_t getSong( void );
+uint8_t getCurSong( void );
 void setSong( uint8_t v );
 void setDone( void );
 uint8_t playPreviousSong( void );
@@ -33,6 +36,10 @@ bool isQueueMode( void );
 void setQueueMode( bool q );
 bool isHomeMode( void );
 void setHomeMode( bool h );
+void displayVol ( void );
+
+void enterMenuMode( uint8_t curSong );
+void exitMenuMode( uint8_t curSong );
 
 void enterQueueMode(void);
 void initQueueBuffer(void);
